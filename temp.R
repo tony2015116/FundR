@@ -52,7 +52,7 @@ pkgdown::build_reference()
 pkgdown::build_reference_index()
 #usethis::use_pkgdown_github_pages()
 #1.3.5
-usethis::use_git(message = ":art: improve structures")#每次修改完代码，都需使用该命令（新建立R包时也要使用该命令）
+usethis::use_git(message = ":tada: Create a new package and website")#每次修改完代码，都需使用该命令（新建立R包时也要使用该命令）
 #4. #commit 后，可使用Rstudio push 或者 Tools shell -> git push
 #2.
 usethis::use_github()#包的名字由description文件控制
