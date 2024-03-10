@@ -1,0 +1,19 @@
+Package: FundR
+Title: Fund Crawling Tool
+Version: 0.0.1
+Authors@R: c(
+    person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
+    person("Guo Meng", role = "cph")
+  )
+Description: An R package for Crawling Fund Data.
+License: MIT + file LICENSE
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Config/fusen/version: 0.5.2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
