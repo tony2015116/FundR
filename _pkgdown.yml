@@ -43,6 +43,3 @@ reference:
     contents:
       - fund_list
       - fund_nav
-  - title: Example function
-    contents:
-      - add_one
