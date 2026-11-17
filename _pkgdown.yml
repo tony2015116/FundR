@@ -39,13 +39,10 @@ navbar:
       href: https://github.com/tony2015116/FundR/discussions
 
 reference:
-  - title: download function
-    desc: download chromedriver and selenium server
+  - title: Fund data
+    contents:
+      - fund_list
+      - fund_nav
+  - title: Example function
     contents:
       - add_one
-
-news:
-  releases:
-  - text: "FundR 0.1.0"
-    href: https://github.com/tony2015116/wdauto/releases/tag/v0.1.1
-
