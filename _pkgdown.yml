@@ -43,3 +43,16 @@ reference:
     contents:
       - fund_list
       - fund_nav
+  - title: Fund review
+    contents:
+      - fund_period_returns
+      - fund_risk_review
+  - title: Management and product details
+    contents:
+      - fund_profile
+      - fund_company
+      - fund_manager_history
+  - title: Portfolio disclosures
+    contents:
+      - fund_allocation
+      - fund_holdings

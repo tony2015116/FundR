@@ -15,10 +15,7 @@
 #' fund_nav("000001", "2024-01-02", "2024-01-31")
 #' }
 fund_nav <- function(fund_code, start_date = NULL, end_date = NULL) {
-  if (!is.character(fund_code) || length(fund_code) != 1L ||
-      is.na(fund_code) || !grepl("^[0-9]{6}$", fund_code)) {
-    stop("fund_code must be a six-digit character string.", call. = FALSE)
-  }
+  validate_fund_code(fund_code)
 
   start_date <- nav_date_arg(start_date, "start_date")
   end_date <- nav_date_arg(end_date, "end_date")
@@ -159,4 +156,11 @@ nav_page_data <- function(result, fund_code, page) {
     daily_return_pct = read_number("JZZZL"),
     stringsAsFactors = FALSE
   )
+}
+
+validate_fund_code <- function(fund_code) {
+  if (!is.character(fund_code) || length(fund_code) != 1L ||
+      is.na(fund_code) || !grepl("^[0-9]{6}$", fund_code)) {
+    stop("fund_code must be a six-digit character string.", call. = FALSE)
+  }
 }
