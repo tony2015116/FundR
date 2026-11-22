@@ -1,6 +1,6 @@
 Package: FundR
-Title: Retrieve Fund Data from Eastmoney
-Version: 0.0.1.9002
+Title: Research Funds and Stocks
+Version: 0.0.1.9005
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")
@@ -9,6 +9,9 @@ Description: Retrieves the Eastmoney fund directory and historical net asset
     values for funds that publish net asset value data. Returns fund codes,
     dates, trailing returns, and net asset values in data frames. Reviews
     historical returns and drawdowns against a user-specified loss limit.
+    Retrieves mainland Chinese stock prices from Tencent and Hong Kong and US
+    stock prices from Yahoo Finance to compare historical risk and return.
+    Tracks quarterly institutional securities holdings reported to the US SEC.
 Imports:
     httr2 (>= 1.1.1),
     jsonlite,
