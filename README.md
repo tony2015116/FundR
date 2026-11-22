@@ -3,19 +3,26 @@
 [![GitHub R package version](https://img.shields.io/github/r-package/v/tony2015116/FundR)](DESCRIPTION)
 [![GitHub last commit](https://img.shields.io/github/last-commit/tony2015116/FundR)](https://github.com/tony2015116/FundR/commits/master/)
 
-FundR 是一个从东方财富天天基金获取基金目录和历史净值的 R 包。用基金名称查找六位代码，再按代码下载指定日期范围的历史净值。各函数均返回 R 的 `data.frame`，可直接用于筛选、绘图和导出。
+FundR 用于研究中国公募基金、沪深 A 股、港股、美股和机构公开持仓。你可以从基金名称找到重仓证券，再查看个股行情；也可以直接从投资人名字出发，查看其机构最近披露的持仓和季度数量变化。以下 14 个函数均返回 R 数据框。
 
-| 函数 | 用途 |
-| --- | --- |
-| `fund_list()` | 获取基金代码、名称和类型 |
-| `fund_nav(fund_code, start_date = NULL, end_date = NULL)` | 获取一只基金的单位净值、累计净值和日增长率 |
-| `fund_period_returns(fund_code)` | 查询近 1、3、6、12 个月的已公布收益率 |
-| `fund_risk_review(nav, max_drawdown_pct)` | 复核历史区间收益和最大回撤是否达到个人设定的上限 |
-| `fund_profile(fund_code)` | 查询管理人、产品规模、费用和业绩比较基准 |
-| `fund_company(company_id)` | 查询公司规模、产品数量、经理人数与成立日期 |
-| `fund_manager_history(fund_code)` | 查询独管和共管区间、起止日期及团队任职回报 |
-| `fund_allocation(fund_code)` | 按报告期查看股票、债券和现金占基金净资产的比例 |
-| `fund_holdings(fund_code, asset_type)` | 查询最近一期已披露股票或债券的代码、名称、净值占比 |
+## 函数速查
+
+| 想了解什么 | 函数 | 主要结果 |
+| --- | --- | --- |
+| 基金代码是什么 | `fund_list()` | 基金代码、名称、类型 |
+| 基金在指定日期的表现 | `fund_nav()` | 单位净值、累计净值、日增长率 |
+| 最近几个阶段涨跌多少 | `fund_period_returns()` | 近 1、3、6、12 个月收益率 |
+| 历史跌幅是否触及我的上限 | `fund_risk_review()` | 区间收益、最大回撤、阈值是否触发 |
+| 基金的规模、费用和比较基准 | `fund_profile()` | 产品资料及管理公司编号 |
+| 基金公司管理多少资产和产品 | `fund_company()` | 公司规模、产品数、经理数 |
+| 哪一届团队取得了这段业绩 | `fund_manager_history()` | 经理、独管或共管区间、任职回报 |
+| 股票、债券和现金各占多少 | `fund_allocation()` | 各报告期的净资产配置比例 |
+| 最近披露了哪些重仓证券 | `fund_holdings()` | 股票或债券代码、名称、占净值比例 |
+| 个股每日价格是多少 | `stock_history()` | 沪深 A 股、港股、美股的日线 OHLC |
+| 哪只股票的区间回撤较大 | `stock_review()` | 同期收益、最大回撤、实际交易日数 |
+| 可以按哪些投资人查询 | `investor_list()` | 内置名称、申报机构和 SEC 编号（CIK） |
+| 某机构季末持有什么 | `investor_holdings()` | 证券、持有数量、美元市值、披露日期 |
+| 与上季相比有哪些变化 | `investor_changes()` | 两期数量、差额、变化类型 |
 
 ## 一、安装
 
@@ -23,10 +30,18 @@ FundR 是一个从东方财富天天基金获取基金目录和历史净值的 R
 
 ```r
 # 首次使用时运行 install.packages("remotes")
-remotes::install_github("tony2015116/FundR")
+# 安装包含本 README 全部功能的开发版本
+remotes::install_github("tony2015116/FundR", ref = "feature/stock-analysis")
 ```
 
-安装时会处理 `httr2` 和 `jsonlite` 等依赖。查询数据需要联网。
+安装默认分支可省略 `ref`。运行 `packageVersion("FundR")` 核对版本，本页示例对应 `0.0.1.9005`。查询远端数据需要联网。已下载的数据可以离线交给 `fund_risk_review()`、`stock_review()` 和 `investor_changes()` 分析。
+
+| 数据 | 来源 | 查询口径 |
+| --- | --- | --- |
+| 中国公募基金 | 天天基金 | 净值按净值日，持仓按报告期 |
+| 沪深 A 股 | 腾讯行情 | 默认后复权日线 |
+| 港股、美股 | Yahoo Finance | 默认使用调整收盘价 |
+| 机构持仓 | 美国 SEC EDGAR | 近期普通 13F-HR 季报，需配置随请求发送的联系信息 |
 
 ## 二、按名称查找基金
 
@@ -141,6 +156,51 @@ head(fund_holdings("000001", "bond"), 5)   # 最近一期已披露债券
 
 持仓明细仅包含来源披露的证券。若股票列表为空，可用 `attr(stocks, "report_date")` 核对报告期。配置表中未披露的类别为 `NA`，没有配置序列时函数会提示不可用。
 
-## 九、许可证
+## 九、从基金持仓到个股比较
+
+```r
+codes <- c("300308", "688361")  # 也可以从 fund_holdings() 的 security_code 列选择沪深 A 股
+bars <- lapply(codes, stock_history, start_date = "2025-01-01", end_date = "2025-01-31")
+stock_review(do.call(rbind, bars))
+```
+
+`stock_history()` 从腾讯获取沪深 A 股日线，默认使用后复权价格；查看历史成交价格可指定 `adjustment = "none"`。区间收益按首末交易日收盘价计算，最大回撤按日收盘价计算，均以百分比表示。比较多只股票时要求实际首末交易日一致。费用和个人现金流未纳入计算。用最新披露的重仓股回看过去的行情仅用于了解这些股票，不能据此还原基金过去的持仓或收益。
+
+### 港股和美股
+
+```r
+hk <- stock_history("00700", "2025-01-02", "2025-01-24") # 腾讯控股，也可写 0700.HK
+us <- stock_history("AAPL",  "2025-01-02", "2025-01-24") # 苹果，类别股可写 BRK.B
+stock_review(rbind(hk, us))
+```
+
+港美股使用 Yahoo Finance 日线，默认按调整收盘价计算收益，其他价格按同日调整收盘价与收盘价之比折算。指定 `adjustment = "none"` 可查看供应商的标准行情，其中历史价格可能已调整拆股。收益按各自报价币种计算，未计汇率变动、税费。两地休市日不同，跨市场比较需使用共同的首末交易日，中间保留各自的交易日。
+
+## 十、从投资人查机构持仓
+
+```r
+# 将示例替换为你愿意随请求发给 SEC 的姓名及联系邮箱
+options(FundR.sec_user_agent = "Your Name you@example.com")
+investor_list()
+now <- investor_holdings("Buffett")       # 自动选最新报告期
+head(now[c("issuer", "quantity", "unit", "value_usd", "weight_pct", "report_date", "filed_date")], 10)
+q2 <- investor_holdings("Buffett", "2026-06-30")
+q3 <- investor_holdings("Buffett", "2026-09-30")
+subset(investor_changes(q2, q3), status != "unchanged")
+investor_holdings("Li Lu")                # 也支持直接传入机构 CIK
+```
+
+13F 披露机构季末证券头寸。SH 为股数，PRN 为本金；期权另列。市值是期末估值，权重以该机构本表披露市值为分母。新出现或消失指公开表格的变化；保密处理、公司行动和证券类别变化均可能影响比较。研究跟随策略应从披露日之后观察。当前支持 2023 年起的近期普通 13F-HR，遇修订或通知型申报提示人工核对。
+
+| `status` | 两份公开申报之间的变化 |
+| --- | --- |
+| `newly_reported` | 本季首次出现在这两期对照中 |
+| `increased` / `decreased` | 同一证券头寸的披露数量增加 / 减少 |
+| `unchanged` | 披露数量相同，市值仍可能变化 |
+| `no_longer_reported` | 本季表中已找不到上季的头寸 |
+
+如需从申报表继续查行情，请先核对证券类别及其交易代码。`cusip` 是申报表中的证券标识；`stock_history()` 接受的是交易代码，例如苹果的 `"AAPL"`。伯克希尔的 `weight_pct` 以其 13F 表内市值为分母，基金持仓的同名列则以基金净资产为分母。
+
+## 十一、许可证
 
 [MIT](LICENSE.md)

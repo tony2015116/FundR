@@ -56,3 +56,12 @@ reference:
     contents:
       - fund_allocation
       - fund_holdings
+  - title: Stock analysis
+    contents:
+      - stock_history
+      - stock_review
+  - title: Institutional holdings
+    contents:
+      - investor_list
+      - investor_holdings
+      - investor_changes
