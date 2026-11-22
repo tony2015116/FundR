@@ -1,16 +1,18 @@
 Package: FundR
 Title: Retrieve Fund Data from Eastmoney
-Version: 0.0.1
+Version: 0.0.1.9002
 Authors@R: c(
     person("Guo Meng", , , "tony2015116@163.com", role = c("aut", "cre")),
     person("Guo Meng", role = "cph")
   )
 Description: Retrieves the Eastmoney fund directory and historical net asset
     values for funds that publish net asset value data. Returns fund codes,
-    dates, and net asset values in data frames.
+    dates, trailing returns, and net asset values in data frames. Reviews
+    historical returns and drawdowns against a user-specified loss limit.
 Imports:
     httr2 (>= 1.1.1),
-    jsonlite
+    jsonlite,
+    xml2
 License: MIT + file LICENSE
 Suggests: 
     knitr,
